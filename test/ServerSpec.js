@@ -7,6 +7,8 @@ var Users = require('../app/collections/users');
 var User = require('../app/models/user');
 var Links = require('../app/collections/links');
 var Link = require('../app/models/link');
+var bcrypt = require('bcrypt-nodejs');
+
 
 /************************************************************/
 // Mocha doesn't have a way to designate pending before blocks.
@@ -47,16 +49,18 @@ describe('', function() {
         };
       });
 
+
+
     // delete user Svnh from db so it can be created later for the test
     db.knex('users')
       .where('username', '=', 'Svnh')
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
       });
 
     // delete user Phillip from db so it can be created later for the test
@@ -65,10 +69,10 @@ describe('', function() {
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
       });
   });
 
@@ -76,11 +80,12 @@ describe('', function() {
 
     var requestWithSession = request.defaults({jar: true});
 
-    xbeforeEach(function(done) {
+    beforeEach(function(done) {
       // create a user that we can then log-in with
+      var hash = bcrypt.hashSync('Phillip');
       new User({
         'username': 'Phillip',
-        'password': 'Phillip'
+        'password': hash
       }).save().then(function() {
         var options = {
           'method': 'POST',
@@ -226,7 +231,7 @@ describe('', function() {
 
   }); // 'Link creation'
 
-  xdescribe('Privileged Access:', function() {
+  describe('Privileged Access:', function() {
 
     it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {
@@ -251,7 +256,7 @@ describe('', function() {
 
   }); // 'Priviledged Access'
 
-  xdescribe('Account Creation:', function() {
+  describe('Account Creation:', function() {
 
     it('Signup creates a user record', function(done) {
       var options = {
@@ -299,14 +304,15 @@ describe('', function() {
 
   }); // 'Account Creation'
 
-  xdescribe('Account Login:', function() {
+  describe('Account Login:', function() {
 
     var requestWithSession = request.defaults({jar: true});
+    var hash = bcrypt.hashSync('Phillip');
 
     beforeEach(function(done) {
       new User({
         'username': 'Phillip',
-        'password': 'Phillip'
+        'password': hash
       }).save().then(function() {
         done();
       });
@@ -343,6 +349,8 @@ describe('', function() {
         done();
       });
     });
+
+
 
   }); // 'Account Login'
 
