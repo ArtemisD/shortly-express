@@ -138,6 +138,12 @@ app.post('/login', util.isValidUser
   // }
 );
 
+app.get('/logout',
+  function(req, res) {
+    req.session.destroy();
+    res.redirect('login');
+  });
+
 app.get('/signup',
   function(req, res) {
     res.render('signup');
